@@ -1,6 +1,5 @@
+import asyncio
 from decimal import Decimal
-
-import pytest
 
 from app.models.payment import CardDetails, PaymentRequest, PaymentStatus
 from app.services.payment_gateway import PaymentGateway
@@ -25,26 +24,24 @@ def payment_request() -> PaymentRequest:
     )
 
 
-@pytest.mark.asyncio
-async def test_successful_checkout_authorization():
+def test_successful_checkout_authorization():
     gateway = PaymentGateway(
         StubProviderClient(
             {
                 "status": "authorized",
-                "auth": {"id": "auth_987"},
+                "authorization_id": "auth_987",
                 "message": "approved",
             }
         )
     )
 
-    response = await gateway.authorize(payment_request())
+    response = asyncio.run(gateway.authorize(payment_request()))
 
     assert response.status == PaymentStatus.authorized
     assert response.authorization_id == "auth_987"
 
 
-@pytest.mark.asyncio
-async def test_failed_gateway_response():
+def test_failed_gateway_response():
     gateway = PaymentGateway(
         StubProviderClient(
             {
@@ -54,7 +51,7 @@ async def test_failed_gateway_response():
         )
     )
 
-    response = await gateway.authorize(payment_request())
+    response = asyncio.run(gateway.authorize(payment_request()))
 
     assert response.status == PaymentStatus.declined
     assert response.message == "insufficient_funds"

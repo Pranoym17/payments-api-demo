@@ -32,4 +32,9 @@ class PaymentProviderClient:
         ) as client:
             response = await client.post("/v1/authorizations", json=payload, headers=headers)
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+            return {
+                "status": data["status"],
+                "authorization_id": data["authorization_id"],
+                "message": data.get("message", "authorization processed"),
+            }

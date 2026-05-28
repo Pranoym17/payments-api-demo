@@ -52,9 +52,7 @@ class PaymentGateway:
             )
 
         if provider_response.get("status") == "authorized":
-            authorization_id = provider_response.get("authorization_id")
-            if not authorization_id:
-                authorization_id = provider_response.get("auth", {}).get("id")
+            authorization_id = provider_response["authorization_id"]
 
             logger.info(
                 "payment_authorized",

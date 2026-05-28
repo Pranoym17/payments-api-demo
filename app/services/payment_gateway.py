@@ -71,3 +71,23 @@ class PaymentGateway:
             status=PaymentStatus.declined,
             message=provider_response.get("message", "Payment was not authorized"),
         )
+
+# SentinelAI suggested fix preview
+# Review before merging. Generated from incident context.
+# --- a/app/services/payment_gateway.py
+# +++ b/app/services/payment_gateway.py
+# @@ ... @@
+#  def process_payment(request_data):
+# -    sdk_response = sdk_client.charge(request_data)
+# -    # Existing logic assumes sdk_response is always valid
+# -    if sdk_response['status'] == 'success':
+# -        return { 'status': 'success', 'transaction_id': sdk_response['id'] }
+# -    else:
+# -        return { 'status': 'failure', 'reason': sdk_response.get('error', 'Unknown error') }
+# +    sdk_response = sdk_client.charge(request_data)
+# +    if not sdk_response or not isinstance(sdk_response, dict):
+# +        return { 'status': 'failure', 'reason': 'Payment gateway unavailable or invalid response' }
+# +    if sdk_response.get('status') == 'success':
+# +        return { 'status': 'success', 'transaction_id': sdk_response.get('id') }
+# +    else:
+# +        return { 'status': 'failure', 'reason': sdk_response.get('error', 'Unknown error') }

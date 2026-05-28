@@ -108,3 +108,38 @@ class PaymentGateway:
 # +            'success': False,
 # +            'error': provider_response.get('error', 'Payment declined or malformed provider response')
 # +        }
+
+# SentinelAI suggested fix preview
+# Review before merging. Generated from incident context.
+# --- a/app/services/payment_gateway.py
+# +++ b/app/services/payment_gateway.py
+# @@ ... @@
+#  def process_payment(request_data):
+# -    sdk_response = sdk_client.charge(request_data)
+# -    # Assume sdk_response should be a dict with 'status' and 'transaction_id'
+# -    if sdk_response['status'] == 'success':
+# -        return {
+# -            'success': True,
+# -            'transaction_id': sdk_response['transaction_id']
+# -        }
+# -    else:
+# -        return {
+# -            'success': False,
+# -            'error': sdk_response.get('error', 'Unknown error')
+# -        }
+# +    sdk_response = sdk_client.charge(request_data)
+# +    if not sdk_response or not isinstance(sdk_response, dict):
+# +        return {
+# +            'success': False,
+# +            'error': 'Payment gateway unavailable or returned invalid response.'
+# +        }
+# +    if sdk_response.get('status') == 'success':
+# +        return {
+# +            'success': True,
+# +            'transaction_id': sdk_response['transaction_id']
+# +        }
+# +    else:
+# +        return {
+# +            'success': False,
+# +            'error': sdk_response.get('error', 'Unknown error')
+# +        }

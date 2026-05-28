@@ -1,8 +1,11 @@
 import httpx
 
 from app.models.payment import PaymentRequest, PaymentResponse, PaymentStatus
+from app.observability.logging import get_logger
 from app.services.retry_policy import RetryPolicy
 from app.services.sdk_client import PaymentProviderClient
+
+logger = get_logger(__name__)
 
 
 class PaymentGateway:
@@ -26,6 +29,10 @@ class PaymentGateway:
             )
         except httpx.HTTPStatusError as exc:
             if exc.response.status_code in {402, 409}:
+                logger.info(
+                    "payment_declined",
+                    extra={"order_id": payment.order_id, "status_code": exc.response.status_code},
+                )
                 return PaymentResponse(
                     order_id=payment.order_id,
                     status=PaymentStatus.declined,
@@ -37,6 +44,7 @@ class PaymentGateway:
                 message="Payment provider returned an error",
             )
         except httpx.HTTPError:
+            logger.exception("payment_provider_request_failed", extra={"order_id": payment.order_id})
             return PaymentResponse(
                 order_id=payment.order_id,
                 status=PaymentStatus.failed,
@@ -48,6 +56,10 @@ class PaymentGateway:
             if not authorization_id:
                 authorization_id = provider_response.get("auth", {}).get("id")
 
+            logger.info(
+                "payment_authorized",
+                extra={"order_id": payment.order_id, "authorization_id": authorization_id},
+            )
             return PaymentResponse(
                 order_id=payment.order_id,
                 status=PaymentStatus.authorized,
@@ -55,6 +67,7 @@ class PaymentGateway:
                 message="Payment authorized",
             )
 
+        logger.info("payment_not_authorized", extra={"order_id": payment.order_id})
         return PaymentResponse(
             order_id=payment.order_id,
             status=PaymentStatus.declined,

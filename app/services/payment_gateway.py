@@ -71,3 +71,30 @@ class PaymentGateway:
             status=PaymentStatus.declined,
             message=provider_response.get("message", "Payment was not authorized"),
         )
+
+# SentinelAI suggested fix preview
+# Review before merging. Generated from incident context.
+# --- a/app/services/payment_gateway.py
+# +++ b/app/services/payment_gateway.py
+# @@ ... @@
+#  def process_payment(request):
+# -    response = sdk_client.send_payment(request)
+# -    # New response handling logic
+# -    if response['status'] == 'success':
+# -        return {'success': True, 'transaction_id': response['transaction_id']}
+# -    else:
+# -        return {'success': False, 'error': response.get('error', 'Unknown error')}
+# +    try:
+# +        response = sdk_client.send_payment(request)
+# +        # New response handling logic
+# +        if response['status'] == 'success':
+# +            return {'success': True, 'transaction_id': response['transaction_id']}
+# +        else:
+# +            return {'success': False, 'error': response.get('error', 'Unknown error')}
+# +    except (KeyError, TypeError):
+# +        # Fallback to legacy response handling for malformed/legacy SDK responses
+# +        legacy_response = sdk_client.send_payment_legacy(request)
+# +        if hasattr(legacy_response, 'is_success') and legacy_response.is_success():
+# +            return {'success': True, 'transaction_id': getattr(legacy_response, 'txn_id', None)}
+# +        else:
+# +            return {'success': False, 'error': getattr(legacy_response, 'error_message', 'Unknown error')}

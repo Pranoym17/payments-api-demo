@@ -38,3 +38,11 @@ class PaymentProviderClient:
                 "authorization_id": data["authorization_id"],
                 "message": data.get("message", "authorization processed"),
             }
+
+# SentinelAI suggested fix preview
+# Review before merging. Generated from incident context.
+# diff --git a/app/services/sdk_client.py b/app/services/sdk_client.py
+# --- a/app/services/sdk_client.py
+# +++ b/app/services/sdk_client.py
+# @@
+# +# SentinelAI verification marker

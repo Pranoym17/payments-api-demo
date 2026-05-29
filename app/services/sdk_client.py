@@ -38,3 +38,35 @@ class PaymentProviderClient:
                 "authorization_id": data["authorization_id"],
                 "message": data.get("message", "authorization processed"),
             }
+
+# SentinelAI suggested fix preview
+# Review before merging. Generated from incident context.
+# --- a/app/services/sdk_client.py
+# +++ b/app/services/sdk_client.py
+# @@ ... @@
+# -import requests
+# +import requests
+# 
+# -class SDKClient:
+# -    def __init__(self, base_url):
+# -        self.base_url = base_url
+# -
+# -    def authenticate(self, username, password):
+# -        response = requests.post(
+# -            f"{self.base_url}/auth",
+# -            json={"username": username, "password": password}
+# -        )
+# -        response.raise_for_status()
+# -        return response.json()
+# +class SDKClient:
+# +    def __init__(self, base_url):
+# +        self.base_url = base_url
+# +
+# +    def authenticate(self, username, password):
+# +        response = requests.post(
+# +            f"{self.base_url}/auth",
+# +            json={"username": username, "password": password},
+# +            timeout=2
+# +        )
+# +        response.raise_for_status()
+# +        return response.json()

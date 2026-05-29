@@ -71,3 +71,110 @@ class PaymentGateway:
             status=PaymentStatus.declined,
             message=provider_response.get("message", "Payment was not authorized"),
         )
+
+# SentinelAI suggested fix preview
+# Review before merging. Generated from incident context.
+# --- a/app/services/payment_gateway.py
+# +++ b/app/services/payment_gateway.py
+# @@ ... @@
+# -    provider_response = sdk_client.authorize_payment(payment_data)
+# -    # Assume provider_response is a dict with 'auth_code' and 'status'
+# -    if provider_response['status'] == 'approved':
+# -        return {
+# -            'success': True,
+# -            'auth_code': provider_response['auth_code']
+# -        }
+# -    else:
+# -        return {
+# -            'success': False,
+# -            'error': provider_response.get('error', 'Payment declined')
+# -        }
+# +    provider_response = sdk_client.authorize_payment(payment_data)
+# +    # Defensive: check required fields
+# +    if not isinstance(provider_response, dict):
+# +        return {
+# +            'success': False,
+# +            'error': 'Invalid provider response format'
+# +        }
+# +    status = provider_response.get('status')
+# +    auth_code = provider_response.get('auth_code')
+# +    if status == 'approved' and auth_code:
+# +        return {
+# +            'success': True,
+# +            'auth_code': auth_code
+# +        }
+# +    else:
+# +        return {
+# +            'success': False,
+# +            'error': provider_response.get('error', 'Payment declined or malformed provider response')
+# +        }
+
+# SentinelAI suggested fix preview
+# Review before merging. Generated from incident context.
+# --- a/app/services/payment_gateway.py
+# +++ b/app/services/payment_gateway.py
+# @@ ... @@
+#  def process_payment(request_data):
+# -    sdk_response = sdk_client.charge(request_data)
+# -    # Assume sdk_response should be a dict with 'status' and 'transaction_id'
+# -    if sdk_response['status'] == 'success':
+# -        return {
+# -            'success': True,
+# -            'transaction_id': sdk_response['transaction_id']
+# -        }
+# -    else:
+# -        return {
+# -            'success': False,
+# -            'error': sdk_response.get('error', 'Unknown error')
+# -        }
+# +    sdk_response = sdk_client.charge(request_data)
+# +    if not sdk_response or not isinstance(sdk_response, dict):
+# +        return {
+# +            'success': False,
+# +            'error': 'Payment gateway unavailable or returned invalid response.'
+# +        }
+# +    if sdk_response.get('status') == 'success':
+# +        return {
+# +            'success': True,
+# +            'transaction_id': sdk_response['transaction_id']
+# +        }
+# +    else:
+# +        return {
+# +            'success': False,
+# +            'error': sdk_response.get('error', 'Unknown error')
+# +        }
+
+# SentinelAI suggested fix preview
+# Review before merging. Generated from incident context.
+# --- a/app/services/payment_gateway.py
+# +++ b/app/services/payment_gateway.py
+# @@ ... @@
+#  def process_payment(request_data):
+# -    sdk_response = sdk_client.charge(request_data)
+# -    # Assume sdk_response should be a dict with 'status' and 'transaction_id'
+# -    if sdk_response['status'] == 'success':
+# -        return {
+# -            'success': True,
+# -            'transaction_id': sdk_response['transaction_id']
+# -        }
+# -    else:
+# -        return {
+# -            'success': False,
+# -            'error': sdk_response.get('error', 'Unknown error')
+# -        }
+# +    sdk_response = sdk_client.charge(request_data)
+# +    if not sdk_response or not isinstance(sdk_response, dict):
+# +        return {
+# +            'success': False,
+# +            'error': 'Payment gateway unavailable or returned invalid response.'
+# +        }
+# +    if sdk_response.get('status') == 'success':
+# +        return {
+# +            'success': True,
+# +            'transaction_id': sdk_response['transaction_id']
+# +        }
+# +    else:
+# +        return {
+# +            'success': False,
+# +            'error': sdk_response.get('error', 'Unknown error')
+# +        }

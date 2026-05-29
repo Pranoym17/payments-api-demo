@@ -38,3 +38,11 @@ class PaymentProviderClient:
                 "authorization_id": data["authorization_id"],
                 "message": data.get("message", "authorization processed"),
             }
+
+# SentinelAI suggested fix preview
+# Review before merging. Generated from incident context.
+# --- a/app/services/sdk_client.py
+# +++ b/app/services/sdk_client.py
+# @@ ... @@
+# -    response = requests.post(auth_url, json=payload, headers=headers)
+# +    response = requests.post(auth_url, json=payload, headers=headers, timeout=3)
